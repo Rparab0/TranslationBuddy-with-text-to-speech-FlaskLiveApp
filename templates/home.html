@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Translato</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f2f2f2;
+            background-image: url('https://images.unsplash.com/photo-1482686115713-0fbcaced6e28?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1167&q=80');
+            background-size: auto;
+            background-position: center;
+        }
+
+        .container {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        h1 {
+            text-align: center;
+            color: #4f273b;
+        }
+
+        form {
+            margin-top: 40px;
+            margin-bottom: 40px;
+            margin-left: 40px;
+            margin-right: 40px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #eae2e9;
+        }
+
+        .form-container {
+            background-color: rgba(17, 1, 21, 0.884);
+            border-radius: 20px;
+            padding: 20px;
+            color: #f0e7e7;
+            backdrop-filter: blur(5px);
+            max-width: 800px;
+            margin:auto
+        }
+
+        input[type="text"] {
+            width: 90%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #eae8ee;
+            background-color: #edebf0;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #8475a7;
+        }
+
+        input[type="submit"],
+        button {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #8475a7;
+            background-color: #8475a7;
+            transition: border-color 0.3s ease-in-out;
+        }
+
+        input[type="submit"]:hover,
+        button:hover {
+            background-color: #241d56;
+            color: #080000;
+        }
+
+        h2 {
+            color: #575151;
+        }
+
+        p {
+            margin-top: 0;
+        }
+
+        .color {
+            color: rgb(243, 236, 245);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            color: #8475a7;
+        }
+
+        select {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 10px;
+            border: 1px solid #5016d6;
+            background-color: #3e2a6e;
+            transition: border-color 0.3s ease-in-out;
+        }
+    </style>
+
+    <script>
+        function playAudio() {
+            var text = document.getElementById("output").textContent;
+            fetch('/play-text', {
+                method: 'POST',
+                body: new URLSearchParams({
+                    text: text
+                })
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.blob();
+                    } else {
+                        console.error("Error initiating audio playback");
+                    }
+                })
+                .then(blob => {
+                    var audio = new Audio(URL.createObjectURL(blob));
+                    audio.play();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h1><span class="color">Translation app</span></h1>
+            <form method="POST" action="/">
+                <label for="sentence">Enter a sentence:</label>
+                <input type="text" id="sentence" name="sentence" placeholder="Please enter the text" onfocus="this.placeholder=''" onblur="this.placeholder='Please enter the text'"><br><br>
+                <label for="inputvalue">Select a language:</label>
+                <select id="inputvalue" name="inputvalue">
+                    {% for code, name in languages.items() %}
+                    <option value="{{ code }}" {% if language == code %}selected{% endif %}>{{ name }}</option>
+                    {% endfor %}
+                </select><br><br>
+                <input type="submit" value="Translate">
+            </form>
+            {% if output %}
+            <h2>Translation:</h2>
+            <p id="output">{{ output }}</p>
+            <button id="play-button" onclick="playAudio()">Play as Speech</button>
+            {% endif %}
+        </div>
+        <footer class="footer">
+            <p>
+                &copy; 2023 <span class="color">Text Translator. All rights reserved.</span>
+            </p>
+        </footer>
+    </div>
+</body>
+</html>
